@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { COLORS } from '@styles/index';
+import { COLORS, rem } from '@styles/index';
 
 export const styles = StyleSheet.create({
   container: {
@@ -8,5 +8,6 @@ export const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     backgroundColor: COLORS.mainBackgroundColor,
+    paddingVertical: rem(10),
   },
 });

@@ -1,5 +1,6 @@
 import React, { memo, useState } from 'react';
-import { KeyboardAvoidingView, Platform } from 'react-native';
+import { KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 import { Screen } from '@components/Screen';
 import { Section } from '@components/Section';
@@ -18,6 +19,8 @@ export const AddRepo = memo<IProps>(({ addRepo, loading }) => {
   const [organisation, setOrganisation] = useState('');
   const [project, setProject] = useState('');
 
+  const headerHeight = useHeaderHeight();
+
   const validRepo = Boolean(organisation && project);
 
   const onAdd = () => {
@@ -30,6 +33,7 @@ export const AddRepo = memo<IProps>(({ addRepo, loading }) => {
     <Screen loading={loading}>
       <KeyboardAvoidingView
         style={styles.container}
+        keyboardVerticalOffset={headerHeight + (StatusBar.currentHeight || 0)}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <Section>
