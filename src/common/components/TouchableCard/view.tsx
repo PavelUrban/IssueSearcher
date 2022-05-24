@@ -10,9 +10,10 @@ interface IProps {
   style?: ViewStyle;
   onPress: () => void;
   disabled?: boolean;
+  inactive?: boolean;
 }
 
-export const TouchableCard = memo<IProps>(({ style, onPress, disabled, children }) => {
+export const TouchableCard = memo<IProps>(({ style, onPress, disabled, children, inactive }) => {
   const throttlePress = useCallback(throttle(onPress, CONFIG.PRESS_THROTTLE, { trailing: false }), [onPress]);
 
   return (
@@ -20,7 +21,7 @@ export const TouchableCard = memo<IProps>(({ style, onPress, disabled, children 
       style={[styles.container, style]}
       onPress={throttlePress}
     >
-      <View style={[styles.contentContainer, disabled ? styles.disabled : undefined]}>
+      <View style={[styles.contentContainer, disabled || inactive ? styles.disabled : undefined]}>
         {children}
       </View>
     </TouchableOpacity>

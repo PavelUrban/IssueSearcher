@@ -1,6 +1,7 @@
 import { Octokit } from '@octokit/core';
+
 import { IRepo, IRepoBase } from '@models/repo';
-import { IIssueBase } from '@models/issue';
+import { IIssueBase, ISSUE_STATE } from '@models/issue';
 
 const octokit = new Octokit({});
 
@@ -28,13 +29,14 @@ export const getProjectDetails = async (repo: IRepoBase): Promise<IRepo> => {
   }
 };
 
-export const getRepoIssues = async (repo: IRepo, page: number, pageSize: number): Promise<IIssueBase[]> => {
+export const getRepoIssues = async (repo: IRepo, page: number, pageSize: number, state: ISSUE_STATE): Promise<IIssueBase[]> => {
   try {
-    const { data: issues } = await octokit.request('GET /repos/{organisation}/{project}/issues?page={page}&perPage={pageSize}', {
+    const { data: issues } = await octokit.request('GET /repos/{organisation}/{project}/issues?page={page}&perPage={pageSize}&state={state}', {
       organisation: repo.organisation,
       project: repo.project,
       page,
       pageSize,
+      state,
     });
 
     return issues.map(issueDTO => ({
@@ -43,6 +45,7 @@ export const getRepoIssues = async (repo: IRepo, page: number, pageSize: number)
       createdAt: issueDTO.created_at,
       user: issueDTO.user.login,
       userAvatarUrl: issueDTO.user.avatar_url,
+      state: issueDTO.state,
     }));
   } catch (err) {
     console.error(err);

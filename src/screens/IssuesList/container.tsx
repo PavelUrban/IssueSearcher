@@ -8,7 +8,7 @@ import { SCREEN_NAMES } from '@navigation/screenNames';
 import { IRepo } from '@models/repo';
 import { getRepoIssues } from '@api/index';
 import { CONFIG } from '@config/index';
-import { IIssueBase } from '@models/issue';
+import { IIssueBase, ISSUE_STATE } from '@models/issue';
 import { repeatInCaseOfError } from '@utils/common';
 
 import { IssuesList as IssuesListView } from './view';
@@ -20,14 +20,15 @@ export const IssuesList = memo<IProps>(({ navigation, route }) => {
 
   const dispatch = useAppDispatch();
 
-  const followingIssuesMap = useAppSelector(useCallback(getFollowingIssuesMapForRepo(repo), [repo]));
-  const followingIssues = useAppSelector(useCallback(getFollowingIssuesForRepo(repo), [repo]));
-
   const [issuesInfo, setIssuesInfo] = useState<{ page: number, issues: IIssueBase[] }>({ page: 0, issues: [] });
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [showFollowingIssues, setShowFollowingIssues] = useState(false);
+  const [issueState, setIssueState] = useState(ISSUE_STATE.CLOSED);
+
+  const followingIssuesMap = useAppSelector(useCallback(getFollowingIssuesMapForRepo(repo, issueState), [repo, issueState]));
+  const followingIssues = useAppSelector(useCallback(getFollowingIssuesForRepo(repo, issueState), [repo, issueState]));
 
   useEffect(() => {
     if (!repo || loading || issuesInfo.page === page || !hasMore) return;
@@ -35,18 +36,27 @@ export const IssuesList = memo<IProps>(({ navigation, route }) => {
     setLoading(true);
 
     (async () => {
-      const newIssues = await repeatInCaseOfError(getRepoIssues, repo, page, CONFIG.PAGE_SIZE);
+      const newIssues = await repeatInCaseOfError(getRepoIssues, repo, page, CONFIG.PAGE_SIZE, issueState);
       setIssuesInfo({ page, issues: issuesInfo.issues.concat(newIssues) });
       if (!newIssues.length) setHasMore(false);
 
       setLoading(false);
     })();
-  }, [repo, page, loading, issuesInfo, hasMore]);
+  }, [repo, page, loading, issuesInfo, hasMore, issueState]);
 
   const loadMore = useCallback(() => {
     if (loading || page !== issuesInfo.page || !hasMore || showFollowingIssues) return;
     setPage(issuesInfo.page + 1);
   }, [loading, issuesInfo.page, page, hasMore, showFollowingIssues]);
+
+  const changeState = useCallback((newState) => {
+    if (issueState === newState) return;
+
+    setPage(1);
+    setIssueState(newState);
+    setHasMore(true);
+    setIssuesInfo({ page: 0, issues: [] });
+  }, [issueState]);
 
   const toggleIssueFollowing = useCallback((issue: IIssueBase) => {
     if (!repo) return;
@@ -66,6 +76,8 @@ export const IssuesList = memo<IProps>(({ navigation, route }) => {
       followingIssuesMap={followingIssuesMap}
       showFollowing={showFollowingIssues}
       onShowFollowingChange={setShowFollowingIssues}
+      issueState={issueState}
+      onIssueStateChange={changeState}
     />
   );
 });

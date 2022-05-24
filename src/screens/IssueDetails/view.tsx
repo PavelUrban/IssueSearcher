@@ -29,6 +29,7 @@ export const IssueDetails = memo<IProps>(({ issue, toggleIssueFollowing, follow,
         <View style={styles.mainInfoContainer}>
           <Text style={styles.desc}>User: {issue.user}</Text>
           <Text style={styles.desc}>Open date: {moment(issue.createdAt).format('MM-DD-YYYY')}</Text>
+          <Text style={styles.desc}>State: {issue.state}</Text>
         </View>
         <Button
           titleStyle={styles.buttonTitle}

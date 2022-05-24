@@ -10,14 +10,16 @@ interface IProps {
   onPress: () => void;
   title: string;
   disabled?: boolean;
+  inactive?: boolean;
 }
 
-export const Button = memo<IProps>(({ style, onPress, title, disabled, titleStyle }) => {
+export const Button = memo<IProps>(({ style, onPress, title, disabled, titleStyle, inactive }) => {
   return (
     <TouchableCard
       style={style}
       onPress={onPress}
       disabled={disabled}
+      inactive={inactive}
     >
       <Text style={[styles.title, titleStyle]}>{title}</Text>
     </TouchableCard>
